@@ -5,19 +5,76 @@ declare(strict_types=1);
 // fallbacks to the previous hardcoded defaults.
 
 // Try to load Composer autoloader and Dotenv if available.
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
+// Avoid fatal errors when vendor/ is present but incomplete (common when vendor wasn't installed).
+$vendorAutoload = __DIR__ . '/vendor/autoload.php';
+// Try to include composer autoload without causing a fatal error if vendor is incomplete.
+if (file_exists($vendorAutoload)) {
+    $included = @include_once $vendorAutoload;
+    if ($included === false) {
+        // include failed (incomplete vendor). Do not throw; fallback to manual .env parsing below.
+    } else {
+        if (class_exists(\Dotenv\Dotenv::class)) {
+            try {
+                \Dotenv\Dotenv::createImmutable(__DIR__)->safeLoad();
+            } catch (Throwable $e) {
+                // ignore loading errors; fallbacks below will apply
+            }
+        }
+    }
+}
 
-    if (class_exists(\Dotenv\Dotenv::class)) {
-        try {
-            \Dotenv\Dotenv::createImmutable(__DIR__)->safeLoad();
-        } catch (Throwable $e) {
-            // ignore loading errors; fallbacks below will apply
+// Fallback: some shared hostings may not have vendor installed or Dotenv
+// may not load environment variables as expected. If a .env file exists
+// parse it manually and set variables that are not already defined.
+$envFile = __DIR__ . '/.env';
+// parsed env values (prefer these before getenv)
+$PARSED_ENV = [];
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || strpos($line, '#') === 0) {
+            continue;
+        }
+
+        // Support KEY=VALUE (simple parsing)
+        $parts = explode('=', $line, 2);
+        if (count($parts) !== 2) {
+            continue;
+        }
+
+        $key = trim($parts[0]);
+        $value = trim($parts[1]);
+
+        // Remove surrounding quotes if present (compatible with PHP < 8)
+        if (strlen($value) >= 2) {
+            $first = $value[0];
+            $last = $value[strlen($value) - 1];
+            if (($first === '"' && $last === '"') || ($first === "'" && $last === "'")) {
+                $value = substr($value, 1, -1);
+            }
+        }
+
+        // store parsed value and also set in ENV arrays; do not overwrite existing superglobals
+        $PARSED_ENV[$key] = $value;
+        if (!array_key_exists($key, $_ENV)) {
+            $_ENV[$key] = $value;
+        }
+        if (!array_key_exists($key, $_SERVER)) {
+            $_SERVER[$key] = $value;
+        }
+        // try putenv as best-effort (may be ignored by some FPM configs)
+        if (function_exists('putenv')) {
+            @putenv("{$key}={$value}");
         }
     }
 }
 
 function env(string $key, $default = null) {
+    global $PARSED_ENV;
+    if (isset($PARSED_ENV) && array_key_exists($key, $PARSED_ENV)) {
+        return $PARSED_ENV[$key];
+    }
     $v = getenv($key);
     if ($v === false) {
         return $default;
