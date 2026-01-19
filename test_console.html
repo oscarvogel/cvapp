@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Console - Diagnóstico del Formulario</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+        }
+        h1 {
+            color: #ffff00;
+        }
+        .instructions {
+            background: #2d2d2d;
+            padding: 15px;
+            border-left: 4px solid #00ff00;
+            margin: 20px 0;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 5px 0;
+        }
+        .error {
+            color: #ff0000;
+        }
+        .success {
+            color: #00ff00;
+        }
+        .warning {
+            color: #ffaa00;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnóstico del Formulario CV</h1>
+    
+    <div class="instructions">
+        <h2>📋 Instrucciones de Prueba:</h2>
+        <div class="step">1. Abre esta página en el navegador</div>
+        <div class="step">2. Abre la consola del navegador (F12)</div>
+        <div class="step">3. Copia y pega cada bloque de código en la consola</div>
+        <div class="step">4. Reporta los resultados</div>
+    </div>
+
+    <h2>🧪 Test 1: Verificar carga de archivos JS</h2>
+    <pre>
+// Ejecuta esto en la consola del INDEX.PHP (no aquí)
+console.log('=== TEST DE CARGA DE SCRIPTS ===');
+console.log('SweetAlert disponible:', typeof Swal !== 'undefined');
+console.log('DOMContentLoaded disparado:', document.readyState);
+    </pre>
+
+    <h2>🧪 Test 2: Verificar elementos del DOM</h2>
+    <pre>
+// Ejecuta esto en la consola del INDEX.PHP
+console.log('=== TEST DE ELEMENTOS DOM ===');
+console.log('Formulario:', !!document.getElementById('cvForm'));
+console.log('Email input:', !!document.getElementById('email'));
+console.log('Submit button:', !!document.querySelector('button[type="submit"]'));
+console.log('Experiencia container:', !!document.getElementById('experiencia-laboral-container'));
+console.log('Items de experiencia:', document.querySelectorAll('.experiencia-item').length);
+    </pre>
+
+    <h2>🧪 Test 3: Verificar listeners</h2>
+    <pre>
+// Ejecuta esto en la consola del INDEX.PHP
+const form = document.getElementById('cvForm');
+if (form) {
+    console.log('=== TEST DE LISTENERS ===');
+    // Intentar enviar el formulario
+    console.log('Intentando disparar submit...');
+    const event = new Event('submit', { bubbles: true, cancelable: true });
+    form.dispatchEvent(event);
+} else {
+    console.error('❌ Formulario no encontrado');
+}
+    </pre>
+
+    <h2>🧪 Test 4: Estado del formulario</h2>
+    <pre>
+// Ejecuta esto DESPUÉS de llenar el formulario
+console.log('=== ESTADO DEL FORMULARIO ===');
+const form = document.getElementById('cvForm');
+const formData = new FormData(form);
+console.log('Datos del formulario:');
+for (let [key, value] of formData.entries()) {
+    if (value instanceof File) {
+        console.log(`${key}:`, value.name, value.size, 'bytes');
+    } else {
+        console.log(`${key}:`, value);
+    }
+}
+    </pre>
+
+    <div class="instructions" style="border-color: #ffaa00; margin-top: 40px;">
+        <h2 class="warning">⚠️ IMPORTANTE:</h2>
+        <p>No uses este archivo directamente. Abre <strong>index.php</strong> en tu navegador y ejecuta los tests en la consola de esa página.</p>
+    </div>
+
+    <h2>📊 Resultados Esperados:</h2>
+    <div class="instructions">
+        <h3 class="success">✅ Si todo está bien, deberías ver:</h3>
+        <ul>
+            <li>📄 app.js cargado (validaciones deshabilitadas)</li>
+            <li>🚀 Inicializando formulario...</li>
+            <li>✅ Elementos del DOM cargados: {form: true, emailInput: true, submitButton: true}</li>
+            <li>✅ Listener de submit registrado correctamente</li>
+            <li>✅ Formulario completamente inicializado</li>
+        </ul>
+        
+        <h3 class="error">❌ Si algo falla, verás:</h3>
+        <ul>
+            <li>Algún elemento como <code>false</code> en lugar de <code>true</code></li>
+            <li>Error de "undefined" o "null"</li>
+            <li>No se dispara el evento submit</li>
+        </ul>
+    </div>
+</body>
+</html>

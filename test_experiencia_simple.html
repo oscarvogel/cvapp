@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Agregar Experiencia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl font-bold mb-4">🧪 Test Agregar Experiencia</h1>
+    
+    <div id="experiencia-laboral-container" class="mb-4">
+        <!-- Experiencia inicial -->
+        <div class="experiencia-item bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+            <h3>Experiencia 0 (inicial)</h3>
+            <input type="text" name="experiencia[0][empresa]" placeholder="Empresa 0" class="w-full p-2 border rounded">
+        </div>
+    </div>
+    
+    <button type="button" id="add-experiencia" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        + Agregar Experiencia
+    </button>
+    
+    <div class="mt-4 p-4 bg-gray-100 rounded">
+        <h3 class="font-bold">Log de eventos:</h3>
+        <div id="log"></div>
+    </div>
+
+    <script>
+    let experienciaIndex = 1; // Comenzar desde 1 para la siguiente experiencia
+    
+    function log(mensaje) {
+        const logDiv = document.getElementById('log');
+        logDiv.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${mensaje}</div>`;
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        log('🚀 DOM cargado');
+        
+        const addButton = document.getElementById('add-experiencia');
+        const container = document.getElementById('experiencia-laboral-container');
+        
+        log(`📋 Elementos encontrados - Botón: ${!!addButton}, Container: ${!!container}`);
+        log(`📊 experienciaIndex inicial: ${experienciaIndex}`);
+        
+        if (!addButton || !container) {
+            log('❌ Error: Elementos DOM no encontrados');
+            return;
+        }
+        
+        addButton.addEventListener('click', function() {
+            log(`🖱️ Click detectado - experienciaIndex actual: ${experienciaIndex}`);
+            
+            const newItem = document.createElement('div');
+            newItem.className = 'experiencia-item bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200';
+            
+            newItem.innerHTML = `
+                <h3>Experiencia ${experienciaIndex} (dinámica)</h3>
+                <input type="text" name="experiencia[${experienciaIndex}][empresa]" placeholder="Empresa ${experienciaIndex}" class="w-full p-2 border rounded">
+                <button type="button" class="remove-btn bg-red-500 text-white px-2 py-1 rounded text-sm mt-2">Eliminar</button>
+            `;
+            
+            log(`➕ Creando nueva experiencia con índice: ${experienciaIndex}`);
+            container.appendChild(newItem);
+            
+            // Agregar listener al botón eliminar
+            newItem.querySelector('.remove-btn').addEventListener('click', function() {
+                log(`🗑️ Eliminando experiencia ${experienciaIndex}`);
+                container.removeChild(newItem);
+            });
+            
+            experienciaIndex++;
+            log(`✅ Experiencia agregada - Nuevo experienciaIndex: ${experienciaIndex}`);
+            log(`📊 Total experiencias en DOM: ${container.children.length}`);
+        });
+        
+        log('✅ Event listeners registrados correctamente');
+    });
+    </script>
+</body>
+</html>

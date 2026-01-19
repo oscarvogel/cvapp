@@ -1,0 +1,16 @@
+# Evitar listado y ejecución en uploads
+Options -Indexes
+
+# Bloquear ejecución de scripts
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .phps
+AddType text/plain .php .phtml .php3 .php4 .php5 .php7 .phps
+
+<IfModule mod_access_compat.c>
+  Deny from all
+</IfModule>
+<IfModule !mod_access_compat.c>
+  Require all denied
+</IfModule>
+
+# Nota: si este .htaccess causa 500 en tu hosting, elimina las líneas RemoveHandler/RemoveType

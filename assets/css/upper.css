@@ -1,0 +1,7 @@
+/* Mostrar inputs y textarea en mayúsculas visualmente */
+input[type=text], input[type=search], input[type=tel], textarea {
+  text-transform: uppercase;
+}
+
+/* Small helper to ensure placeholder also uppercase */
+::placeholder { text-transform: uppercase; opacity: 0.7; }
