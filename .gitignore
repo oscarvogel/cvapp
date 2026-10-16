@@ -4,3 +4,6 @@
 /.idea/
 /vendor/
 /.vscode/
+
+# Snapshot de archivos bajados del servidor (deploy_probe.py)
+/_deploy_snapshot/
